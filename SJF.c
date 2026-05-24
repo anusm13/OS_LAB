@@ -1,58 +1,49 @@
-#include<stdio.h>
+#include <stdio.h>
 int main()
 {
-    int n,at[20],bt[20],pid[20],completed[20],tat[20],ct[20],wt[20];
-    float avg_wt,avg_tat,sum_wt=0,sum_tat=0;
+    int n,i;
+    int AT[20],BT[20],RT[20],CT[20],TAT[20],WT[20];
+    int completed=0,current_time=0,min_index,minRt;
+    float avgWT=0,avgTAT=0;
     printf("enter number of processes:");
     scanf("%d",&n);
-
-    for(int i=0;i<n;i++){
-        printf("enter the arrival time:");
-        scanf("%d",&at[i]);
-        printf("enter the burst time:");
-        scanf("%d",&bt[i]);
-        pid[i]=i+1;
-        completed[i]=0;
+    for(i=0;i<n;i++){
+        printf("enter arrival time for P%d:",i+1);
+        scanf("%d",&AT[i]);
+        printf("enter burst time for P%d:",i+1);
+        scanf("%d",&BT[i]);
+        RT[i]=BT[i];
     }
-    int current_time=0;
-    int completed_count=0;
-    while(completed_count<n){
-        int idx=-1;
-        int min_bt=10000;
-        for(int i=0;i<n;i++){
-            if(at[i]<=current_time && completed[i]==0){
-                if(bt[i]<min_bt){
-                    min_bt=bt[i];
-                    idx=i;
-                }
-
+    while(completed<n){
+        minRt=10000;
+        int min_index=-1;
+        for(i=0;i<n;i++){
+            if(AT[i]<=current_time && RT[i]>0 && RT[i]<minRt){
+                minRt=RT[i];
+                min_index=i;
             }
         }
-        if(idx==-1){
-                    current_time++;
-                }
-                else{
-
-                    ct[idx]=current_time+bt[idx];
-                    tat[idx]=ct[idx]-at[idx];
-                    wt[idx]=tat[idx]-bt[idx];
-                    completed[idx]=1;
-                    current_time=ct[idx];
-                    completed_count=completed_count+1;
-                }
-
+        if(min_index==-1){
+            current_time++;
+        }
+        else{
+            RT[min_index]--;
+            current_time++;
+        }
+        if(RT[min_index]==0){
+            completed++;
+            CT[min_index]=current_time;
+            TAT[min_index]=CT[min_index]-AT[min_index];
+            WT[min_index]=TAT[min_index]-BT[min_index];
+            avgWT += WT[min_index];
+            avgTAT += TAT[min_index];
+        }
     }
-    for(int i=0;i<n;i++){
-        sum_wt=sum_wt+wt[i];
-        sum_tat=sum_tat+tat[i];
+    printf("\nPID\tAT\tBT\tCT\tTAT\tWT\n");
+    for(i=0;i<n;i++){
+        printf("P%d\t%d\t%d\t%d\t%d\t%d\n",i+1,AT[i],BT[i],CT[i],TAT[i],WT[i]);
     }
-    avg_wt=sum_wt/n;
-    avg_tat=sum_tat/n;
-    printf("pid\tAT\tBT\tCT\tWT\tTAT\n");
-    for(int i=0;i<n;i++){
-        printf("%d\t%d\t%d\t%d\t%d\t%d\n",pid[i],at[i],bt[i],ct[i],wt[i],tat[i]);
-    }
-    printf("average waiting time:%f\n",avg_wt);
-    printf("average turn around time:%f\n",avg_tat);
-
+    printf("Average waiting time : %2f\n",avgWT/n);
+    printf("Average Turn around time : %2f",avgTAT/n);
+    return 0;
 }
